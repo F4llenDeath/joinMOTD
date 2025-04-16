@@ -19,20 +19,14 @@ class ServerInfo(Serializable):
 
 
 class Config(Serializable):
-	serverName: str = 'Survival Server'
-	mainServerName: str = 'My Server'
+	serverName: str = 'HLCC'
+	mainServerName: str = 'HLCC'
 	serverList: List[Union[str, ServerInfo]] = [
-		'survival',
-		'lobby',
-		ServerInfo(name='creative1', description='CMP Server#1', category='CMP'),
-		ServerInfo(name='creative2', description='CMP Server#2', category='CMP'),
+		'Main',
+		'Mirror',
+		'Creative',
 	]
-	start_day: Optional[str] = None
-	daycount_plugin_ids: List[str] = [
-		'mcd_daycount',
-		'day_count_reforged',
-		'daycount_nbt'
-	]
+	start_day: Optional[str] = '2025-02-01'
 
 
 Prefix = '!!joinMOTD'
@@ -46,16 +40,8 @@ def get_day(server: ServerInterface) -> str:
 		now = datetime.now()
 		output = now - startday
 		return str(output.days)
-	except:
-		pass
-	for pid in config.daycount_plugin_ids:
-		api = server.get_plugin_instance(pid)
-		if hasattr(api, 'getday') and callable(api.getday):
-			return api.getday()
-	try:
-		import daycount
-		return daycount.getday()
-	except:
+	except Exception as e:
+		server.logger.warning(f'[joinMOTD] Failed to parse start_day: {e}')
 		return '?'
 
 
